@@ -1,9 +1,8 @@
 package pl.keepcoding.swing.custom.learningtest;
 
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 
-import org.fest.swing.annotation.RunsInEDT;
+import org.fest.swing.edt.GuiActionRunner;
 import org.fest.swing.edt.GuiTask;
 import org.fest.swing.finder.WindowFinder;
 import org.fest.swing.fixture.FrameFixture;
@@ -32,6 +31,7 @@ public class JOutlookFromL2FProdTest extends FestSwingTestCaseTemplate{
         
         ApplicationLauncher.application( JOutlookBarDemo.class ).start();
         mainFrame = WindowFinder.findFrame(ComponentNames.mainFrame ).using( robot() );
+        
     }
 	
 
@@ -45,21 +45,25 @@ public class JOutlookFromL2FProdTest extends FestSwingTestCaseTemplate{
 	public void outlookTabsClick() throws Exception {
 		
 		final JTabbedPane jTabbedPane = mainFrame.tabbedPane(ComponentNames.outlookbar).component();
-		GuiTask task = new GuiTask() {
-			
-			@Override
-			protected void executeInEDT() throws Throwable {
-				System.out.println("Is EDT: "+SwingUtilities.isEventDispatchThread());
-				jTabbedPane.setSelectedIndex(0);
-				Thread.sleep(1000);
-				jTabbedPane.setSelectedIndex(1);
-				Thread.sleep(1000);
-				jTabbedPane.setSelectedIndex(2);
-				Thread.sleep(1000);
-				
-			}
-		};
 		
-		task.run();
+		int steps = 2;
+		
+		while(steps>=0){
+			
+			final int stepsProxy = steps;
+			GuiActionRunner.execute(new GuiTask() {
+				@Override
+				protected void executeInEDT() throws Throwable {
+					jTabbedPane.setSelectedIndex(stepsProxy);
+					Thread.sleep(1000);
+				}
+			});
+			
+			steps--;
+		}
+		
+		
+		
+		
 	}
 }
